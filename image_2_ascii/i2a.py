@@ -22,9 +22,9 @@ def img_to_ascii(img: Image):
         img = img.resize((200, int(img.height * 0.22 * aspect_ratio)))
         print(f"resized to: {img.width}x{img.height}")
         data = asarray(img.convert("L"))
-        for y in data:
-            for x in y:
-                f.write(gs_to_char[x // 4])
+        for line in data:
+            for pixel in line:
+                f.write(gs_to_char[pixel // 4])
             f.write("\n")
 
         f.close()
