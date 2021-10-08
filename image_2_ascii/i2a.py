@@ -9,6 +9,7 @@ gs_to_char = list("$@B%8&WM#*oahkbdpqwmZO0QLCUYXzcvunxrjft/\\()1}{[]?-_+~<>i!lI;
 
 
 def open_image(img_path: Path) -> Image:
+    typer.echo(f"Opening {img_path}")
     try:
         img = Image.open(img_path)
     except (FileNotFoundError, UnidentifiedImageError, ValueError, TypeError) as err:
@@ -23,12 +24,12 @@ def img_to_ascii(
     reversed_chars: bool,
     filename: str,
 ):
+    typer.echo("Converting...")
     if reversed_chars:
+        typer.echo("Reversing chars...")
         gs_to_char.reverse()
     output_width, output_height = output_size
     with open(f"{filename}.txt", "w") as f:
-        # resize the image
-        print("=================\n" "image loaded\n" f"size: {img.width}x{img.height}")
         if output_width > img.width or output_height > img.height:
             raise ValueError(
                 "Upscaling not allowed. Please set custom output width and height "
@@ -37,7 +38,7 @@ def img_to_ascii(
             )
 
         img = img.resize(output_size)
-        print(f"resized to: {img.width}x{img.height}")
+        typer.echo(f"ASCII size set to {img.size}")
         data = asarray(img.convert("L"))
         for line in data:
             for pixel in line:
@@ -45,7 +46,7 @@ def img_to_ascii(
             f.write("\n")
 
         f.close()
-        print("done\n=================")
+        typer.echo(f"Output saved to {filename}.txt!")
 
 
 def main(
@@ -69,8 +70,11 @@ def main(
     By default uses those chars (black --> white)
     $@B%8&WM#*oahkbdpqwmZO0QLCUYXzcvunxrjft/\\()1}{[]?-_+~<>i!lI;:,^.
     """
+    typer.echo("======IMAGE=2=ASCII======")
     img = open_image(image)
+    typer.echo("Image loaded!")
     img_to_ascii(img, output_size, reverse, output_filename)
+    typer.echo("==========DONE===========")
 
 
 if __name__ == "__main__":
