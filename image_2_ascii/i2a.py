@@ -21,13 +21,19 @@ def open_image(img_path: Path) -> Image:
 def img_to_ascii(
     img: Image,
     output_size: Tuple[int, int],
-    reversed_chars: bool,
     filename: str,
+    reversed_chars: bool,
+    no_resize: bool,
 ):
     typer.echo("Converting...")
     if reversed_chars:
         typer.echo("Reversing chars...")
         gs_to_char.reverse()
+
+    if no_resize:
+        typer.echo("No resize enabled...")
+        output_size = img.size
+
     output_width, output_height = output_size
     with open(f"{filename}.txt", "w") as f:
         if output_width > img.width or output_height > img.height:
@@ -54,14 +60,17 @@ def main(
     output_size: Tuple[int, int] = typer.Option(
         (100, 100), help="Set custom output width and height"
     ),
+    output_filename: str = typer.Option(
+        "output", help="Set name of the txt file where output will be saved"
+    ),
     reverse: bool = typer.Option(
         False,
         "--reverse",
         "-r",
         help="Reverse the order of chars used in convertion",
     ),
-    output_filename: str = typer.Option(
-        "output", help="Set name of the txt file where output will be saved"
+    no_resize: bool = typer.Option(
+        False, "--no-resize", help="Output width and height are the same as the image"
     ),
 ):
     """
@@ -73,7 +82,7 @@ def main(
     typer.echo("======IMAGE=2=ASCII======")
     img = open_image(image)
     typer.echo("Image loaded!")
-    img_to_ascii(img, output_size, reverse, output_filename)
+    img_to_ascii(img, output_size, output_filename, reverse, no_resize)
     typer.echo("==========DONE===========")
 
 
