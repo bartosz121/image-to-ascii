@@ -1,11 +1,12 @@
 import sys
+import typer
 from numpy import asarray
 from PIL import Image, UnidentifiedImageError
 
 gs_to_char = list(".^,:;Il!i><~+_-?][{}1)(\\/tfjrxnuvczXYUCLQ0OZmwqpdbkhao*#MW&8%B@$")
 
 
-def open_image(img_path: str):
+def open_image(img_path: str) -> Image:
     try:
         img = Image.open(img_path)
     except (FileNotFoundError, UnidentifiedImageError, ValueError, TypeError) as err:
@@ -14,7 +15,9 @@ def open_image(img_path: str):
     return img
 
 
-def img_to_ascii(img: Image):
+def img_to_ascii(img: Image, reversed_chars: bool):
+    if reversed_chars:
+        gs_to_char.reverse()
     with open("ascii.txt", "w") as f:
         # resize the image
         aspect_ratio = img.width / img.height
@@ -31,10 +34,10 @@ def img_to_ascii(img: Image):
         print("done\n=================")
 
 
-def main(file: str):
+def main(file: str, reverse: bool = False):
     img = open_image(file)
-    img_to_ascii(img)
+    img_to_ascii(img, reverse)
 
 
 if __name__ == "__main__":
-    main("/home/bartosz/code/image-2-ascii/image_2_asci/lenna.png")
+    typer.run(main)
