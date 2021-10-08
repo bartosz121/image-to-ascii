@@ -1,6 +1,7 @@
 import sys
 import typer
 from pathlib import Path
+from typing import Tuple
 from numpy import asarray
 from PIL import Image, UnidentifiedImageError
 
@@ -16,14 +17,26 @@ def open_image(img_path: Path) -> Image:
     return img
 
 
-def img_to_ascii(img: Image, reversed_chars: bool, filename: str):
+def img_to_ascii(
+    img: Image,
+    output_size: Tuple[int, int],
+    reversed_chars: bool,
+    filename: str,
+):
     if reversed_chars:
         gs_to_char.reverse()
+    output_width, output_height = output_size
     with open(f"{filename}.txt", "w") as f:
         # resize the image
-        aspect_ratio = img.width / img.height
         print("=================\n" "image loaded\n" f"size: {img.width}x{img.height}")
-        img = img.resize((200, int(img.height * 0.22 * aspect_ratio)))
+        if output_width > img.width or output_height > img.height:
+            raise ValueError(
+                "Upscaling not allowed. Please set custom output width and height "
+                "to be smaller than source image resolution.\n"
+                f"\tTried resize: {img.size} to {output_size}"
+            )
+
+        img = img.resize(output_size)
         print(f"resized to: {img.width}x{img.height}")
         data = asarray(img.convert("L"))
         for line in data:
@@ -37,6 +50,9 @@ def img_to_ascii(img: Image, reversed_chars: bool, filename: str):
 
 def main(
     image: Path = typer.Argument(..., help="Path to image"),
+    output_size: Tuple[int, int] = typer.Option(
+        (100, 100), help="Set custom output width and height"
+    ),
     reverse: bool = typer.Option(
         False,
         "--reverse",
@@ -54,7 +70,7 @@ def main(
     $@B%8&WM#*oahkbdpqwmZO0QLCUYXzcvunxrjft/\\()1}{[]?-_+~<>i!lI;:,^.
     """
     img = open_image(image)
-    img_to_ascii(img, reverse, output_filename)
+    img_to_ascii(img, output_size, reverse, output_filename)
 
 
 if __name__ == "__main__":
