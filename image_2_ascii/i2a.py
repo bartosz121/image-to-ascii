@@ -1,12 +1,13 @@
 import sys
 import typer
+from pathlib import Path
 from numpy import asarray
 from PIL import Image, UnidentifiedImageError
 
-gs_to_char = list(".^,:;Il!i><~+_-?][{}1)(\\/tfjrxnuvczXYUCLQ0OZmwqpdbkhao*#MW&8%B@$")
+gs_to_char = list("$@B%8&WM#*oahkbdpqwmZO0QLCUYXzcvunxrjft/\\()1}{[]?-_+~<>i!lI;:,^.")
 
 
-def open_image(img_path: str) -> Image:
+def open_image(img_path: Path) -> Image:
     try:
         img = Image.open(img_path)
     except (FileNotFoundError, UnidentifiedImageError, ValueError, TypeError) as err:
@@ -34,8 +35,22 @@ def img_to_ascii(img: Image, reversed_chars: bool):
         print("done\n=================")
 
 
-def main(file: str, reverse: bool = False):
-    img = open_image(file)
+def main(
+    image: Path = typer.Argument(..., help="Path to image"),
+    reverse: bool = typer.Option(
+        False,
+        "--reverse",
+        "-r",
+        help="Reverse the order of chars used in convertion",
+    ),
+):
+    """
+    Image to ASCII convertion
+
+    By default uses those chars (black --> white)
+    $@B%8&WM#*oahkbdpqwmZO0QLCUYXzcvunxrjft/\\()1}{[]?-_+~<>i!lI;:,^.
+    """
+    img = open_image(image)
     img_to_ascii(img, reverse)
 
 
