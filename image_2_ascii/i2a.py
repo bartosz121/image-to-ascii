@@ -16,10 +16,10 @@ def open_image(img_path: Path) -> Image:
     return img
 
 
-def img_to_ascii(img: Image, reversed_chars: bool):
+def img_to_ascii(img: Image, reversed_chars: bool, filename: str):
     if reversed_chars:
         gs_to_char.reverse()
-    with open("ascii.txt", "w") as f:
+    with open(f"{filename}.txt", "w") as f:
         # resize the image
         aspect_ratio = img.width / img.height
         print("=================\n" "image loaded\n" f"size: {img.width}x{img.height}")
@@ -43,6 +43,9 @@ def main(
         "-r",
         help="Reverse the order of chars used in convertion",
     ),
+    output_filename: str = typer.Option(
+        "output", help="Set name of the txt file where output will be saved"
+    ),
 ):
     """
     Image to ASCII convertion
@@ -51,7 +54,7 @@ def main(
     $@B%8&WM#*oahkbdpqwmZO0QLCUYXzcvunxrjft/\\()1}{[]?-_+~<>i!lI;:,^.
     """
     img = open_image(image)
-    img_to_ascii(img, reverse)
+    img_to_ascii(img, reverse, output_filename)
 
 
 if __name__ == "__main__":
