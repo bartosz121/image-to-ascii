@@ -58,7 +58,7 @@ def img_to_ascii(
 def main(
     image: Path = typer.Argument(..., help="Path to image"),
     output_size: Tuple[int, int] = typer.Option(
-        (100, 100), help="Set custom output width and height"
+        (100, 40), help="Set custom output width and height"
     ),
     output_filename: str = typer.Option(
         "output", help="Set name of the txt file where output will be saved"
