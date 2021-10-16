@@ -1,11 +1,13 @@
 import sys
 import typer
+from math import ceil
 from pathlib import Path
 from typing import Tuple
 from numpy import asarray
 from PIL import Image, UnidentifiedImageError
 
 gs_to_char = list("$@B%8&WM#*oahkbdpqwmZO0QLCUYXzcvunxrjft/\\()1}{[]?-_+~<>i!lI;:,^.")
+divide_by = ceil(256 / len(gs_to_char))
 
 
 def open_image(img_path: Path) -> Image:
@@ -48,7 +50,7 @@ def img_to_ascii(
         data = asarray(img.convert("L"))
         for line in data:
             for pixel in line:
-                f.write(gs_to_char[pixel // 4])
+                f.write(gs_to_char[pixel // divide_by])
             f.write("\n")
 
         f.close()
