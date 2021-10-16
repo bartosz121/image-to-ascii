@@ -35,7 +35,7 @@ def img_to_ascii(
         output_size = img.size
 
     output_width, output_height = output_size
-    with open(f"{filename}.txt", "w") as f:
+    with open(f"{filename}.txt", "w", encoding="utf-8") as f:
         if output_width > img.width or output_height > img.height:
             raise ValueError(
                 "Upscaling not allowed. Please set custom output width and height "
