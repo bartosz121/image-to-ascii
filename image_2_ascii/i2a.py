@@ -2,6 +2,7 @@ import sys
 import typer
 from math import ceil
 from pathlib import Path
+from tqdm import tqdm
 from typing import Tuple
 from numpy import asarray
 from PIL import Image, UnidentifiedImageError
@@ -27,7 +28,6 @@ def img_to_ascii(
     reversed_chars: bool,
     no_resize: bool,
 ):
-    typer.echo("Converting...")
     if reversed_chars:
         typer.echo("Reversing chars...")
         gs_to_char.reverse()
@@ -48,7 +48,11 @@ def img_to_ascii(
         img = img.resize(output_size)
         typer.echo(f"ASCII size set to {img.size}")
         data = asarray(img.convert("L"))
-        for line in data:
+        for line in tqdm(
+            data,
+            desc="Converting",
+            bar_format="{desc}... {percentage:3.0f}%|{bar:35}{r_bar}",
+        ):
             for pixel in line:
                 f.write(gs_to_char[pixel // divide_by])
             f.write("\n")
