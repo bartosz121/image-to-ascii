@@ -1,10 +1,10 @@
 import sys
 import typer
+import numpy as np
 from math import ceil
 from pathlib import Path
 from tqdm import tqdm
 from typing import Tuple
-from numpy import asarray
 from PIL import Image, UnidentifiedImageError
 
 gs_to_char = list("$@B%8&WM#*oahkbdpqwmZO0QLCUYXzcvunxrjft/\\()1}{[]?-_+~<>i!lI;:,^.")
@@ -19,6 +19,31 @@ def open_image(img_path: Path) -> Image:
         print(err)
         sys.exit(1)
     return img
+
+
+def save_to_file(data: np.ndarray, filename: str) -> None:
+    with open(f"{filename}.txt", "w", encoding="utf-8") as f:
+        for line in data:
+            f.write("".join(c for c in line) + "\n")
+
+    typer.echo(f"Output saved to {filename}.txt!")
+
+
+def convert(img: Image) -> np.ndarray:
+    img_data = np.asarray(img.convert("L"))
+    ascii_data = np.empty_like(img_data, dtype=str)
+
+    with tqdm(
+        total=img_data.size,
+        desc="Converting...",
+        bar_format="{desc}... {percentage:3.0f}%|{bar:35}{r_bar}",
+    ) as p_bar:
+        for pos, pixel in np.ndenumerate(img_data):
+            y, x = pos
+            ascii_data[y][x] = gs_to_char[pixel // divide_by]
+            p_bar.update()
+
+    return ascii_data
 
 
 def img_to_ascii(
@@ -37,28 +62,19 @@ def img_to_ascii(
         output_size = img.size
 
     output_width, output_height = output_size
-    with open(f"{filename}.txt", "w", encoding="utf-8") as f:
-        if output_width > img.width or output_height > img.height:
-            raise ValueError(
-                "Upscaling not allowed. Please set custom output width and height "
-                "to be smaller than source image resolution.\n"
-                f"\tTried resize: {img.size} to {output_size}"
-            )
+    if output_width > img.width or output_height > img.height:
+        raise ValueError(
+            "Upscaling not allowed. Please set custom output width and height "
+            "to be smaller than source image resolution.\n"
+            f"\tTried resize: {img.size} to {output_size}"
+        )
 
-        img = img.resize(output_size)
-        typer.echo(f"ASCII size set to {img.size}")
-        data = asarray(img.convert("L"))
-        for line in tqdm(
-            data,
-            desc="Converting",
-            bar_format="{desc}... {percentage:3.0f}%|{bar:35}{r_bar}",
-        ):
-            for pixel in line:
-                f.write(gs_to_char[pixel // divide_by])
-            f.write("\n")
+    img = img.resize(output_size)
+    typer.echo(f"ASCII size set to {img.size}")
 
-        f.close()
-        typer.echo(f"Output saved to {filename}.txt!")
+    ascii_data = convert(img)
+
+    save_to_file(ascii_data, filename)
 
 
 def main(
