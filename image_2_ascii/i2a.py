@@ -78,12 +78,17 @@ def img_to_ascii(
 
 
 def main(
-    image: Path = typer.Argument(..., help="Path to image"),
+    image: Path = typer.Argument(
+        ...,
+        help="Path to image",
+    ),
     output_size: Tuple[int, int] = typer.Option(
-        (100, 40), help="Set custom output width and height"
+        default=(100, 40),
+        help="Set custom output width and height",
     ),
     output_filename: str = typer.Option(
-        "output", help="Set name of the txt file where output will be saved"
+        "output",
+        help="Set name of the txt file where output will be saved",
     ),
     reverse: bool = typer.Option(
         False,
@@ -92,7 +97,9 @@ def main(
         help="Reverse the order of chars used in convertion",
     ),
     no_resize: bool = typer.Option(
-        False, "--no-resize", help="Output width and height are the same as the image"
+        False,
+        "--no-resize",
+        help="Output width and height are the same as the image",
     ),
 ):
     """
